@@ -11,16 +11,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MoviesHelper.Api.Models;
+using MoviesHelper.Api.Extensions;
 using MoviesHelper.Core;
+using OmdbClient;
 
 namespace MoviesHelper.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IWebHostEnvironment env;
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            this.env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -28,7 +32,9 @@ namespace MoviesHelper.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IMovieDbClient, OmdbClient>();
+            string apiKey = Configuration.GetOmdbApiKey(env);
+
+            services.AddTransient<IMovieDbClient, OmdbClient.OmdbClient>(client => new OmdbClient.OmdbClient(apiKey));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -37,7 +43,7 @@ namespace MoviesHelper.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
             if (env.IsDevelopment())
             {
