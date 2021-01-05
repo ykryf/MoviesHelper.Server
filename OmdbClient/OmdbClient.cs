@@ -24,9 +24,19 @@ namespace OmdbClient
             using (var client = new HttpClient())
             {
                 string url = baseUrl + $"&i={imdbId}";
-                HttpResponseMessage response = await client.GetAsync(url);
+
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    var movie = await GetMovieFromResponseAsync(response);
+                    return movie?.ConvertToMovie();
+                }
+                catch (Exception e)
+                {
+                    // TODO: Log
+                    return null;
+                }
             }
-            return null;
         }
 
         public async Task<Movie> GetMovieByTitleAsync(string title)
@@ -34,9 +44,9 @@ namespace OmdbClient
             using (var client = new HttpClient())
             {
                 string url = baseUrl + $"&t={title}";
-                HttpResponseMessage response = await client.GetAsync(url);
                 try
                 {
+                    HttpResponseMessage response = await client.GetAsync(url);
                     var movie = await GetMovieFromResponseAsync(response);
                     return movie?.ConvertToMovie();
                 }
@@ -57,9 +67,18 @@ namespace OmdbClient
                 {
                     url += $"&y={year}";
                 }
-                HttpResponseMessage response = await client.GetAsync(url);
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    OmdbSearchResults results = await GetSearchResultsFromResponseAsync(response);
+                    return results.ConvertToMovies();
+                }
+                catch (Exception e)
+                {
+                    // TODO: Log
+                    return null;
+                }
             }
-            return null;
         }
 
 
@@ -78,6 +97,22 @@ namespace OmdbClient
             }
 
             return movie;
+        }
+
+        private async Task<OmdbSearchResults> GetSearchResultsFromResponseAsync(HttpResponseMessage response)
+        {
+            OmdbSearchResults results = null;
+            string json = await response.Content.ReadAsStringAsync();
+            try
+            {
+                results = JsonSerializer.Deserialize<OmdbSearchResults>(json);
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            return results;
         }
     }
 }

@@ -11,6 +11,16 @@ namespace OmdbClient
     {
         [JsonPropertyName("Search")]
         public List<OmdbSearchResult> Results { get; set; }
+
+        public ICollection<Movie> ConvertToMovies()
+        {
+            List<Movie> movies = new List<Movie>();
+            foreach (OmdbSearchResult result in Results)
+            {
+                movies.Add(OmdbMapper.ConvertToMovie(result));
+            }
+            return movies;
+        }
     }
 
     public class OmdbSearchResult : OmdbBaseMovie

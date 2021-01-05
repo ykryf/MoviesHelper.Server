@@ -11,7 +11,7 @@ namespace OmdbClient
     {
         public static Movie ConvertToMovie(OmdbMovie omdbMovie)
         {
-            Movie movie = new Movie
+            return new Movie
             {
                 Title = omdbMovie.Title,
                 Plot = omdbMovie.Plot,
@@ -38,8 +38,18 @@ namespace OmdbClient
                 ReleasedAt = GetReleasedAt(omdbMovie.Released),
                 Ratings = GetRatings(omdbMovie.Ratings),
             };
+        }
 
-            return movie;
+        public static Movie ConvertToMovie(OmdbSearchResult result)
+        {
+            return new Movie
+            {
+                Title = result.Title,
+                Year = GetYear(result.Year),
+                ImdbId = result.ImdbId,
+                Type = result.Type,
+                PosterUrl = result.Poster
+            };
         }
 
         private static List<Rating> GetRatings(List<OmdbMovieRating> ratings)
