@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MoviesHelper.Api.Models;
+using MoviesHelper.Core;
 
 namespace MoviesHelper.Api
 {
@@ -26,7 +28,7 @@ namespace MoviesHelper.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddTransient<IMovieDbClient, OmdbClient>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
